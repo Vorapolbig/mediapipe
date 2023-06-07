@@ -92,6 +92,8 @@ absl::Status RunMPPGraph() {
                    graph.AddOutputStreamPoller(kOutputStream));
   MP_RETURN_IF_ERROR(graph.StartRun({}));
 
+  auto t1 = std::chrono::high_resolution_clock::now();
+  int frames = 0;
   LOG(INFO) << "Start grabbing and processing frames.";
   bool grab_frames = true;
   while (grab_frames) {
@@ -181,6 +183,16 @@ absl::Status RunMPPGraph() {
       // Press any key to exit.
       const int pressed_key = cv::waitKey(5);
       if (pressed_key >= 0 && pressed_key != 255) grab_frames = false;
+      frames++;
+      auto t2 = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
+      if (duration >= 1) {
+        std::cout << "FPS: " << frames << std::endl;
+        frames = 0;
+        t1 = std::chrono::high_resolution_clock::now();
+        }
+
+
     }
   }
 
